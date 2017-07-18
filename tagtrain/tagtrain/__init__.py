@@ -5,7 +5,7 @@ from itertools import zip_longest
 from .. import data
 from ..reddit import RedditStreamingProcessBase, Reply
 
-USERNAME = 'TagTrain'
+USERNAME = 'TagTrainTest'
 USERNAME_FULL = f'u/{USERNAME}'
 MEMBER_LIMIT = 3
 
@@ -45,6 +45,17 @@ class TagTrain(RedditStreamingProcessBase):
                 if rv:
                     return n, rv
         return None, None
+
+    def _check_valid_member(self, RSE, reply, match):
+        try:
+            user = match.group('member')
+        except IndexError:
+            return True
+
+        if RSE.valid_user(user):
+            return True
+        reply.append(f'`{user}` is not a valid Reddit user, stopping')
+        return False
 
     def _reply_help(self, reply, message, match):
         _logger.debug('_reply_help...')
@@ -196,7 +207,7 @@ In a Comment:
         reply.append('Sorry, unknown command. Showing help')
         self._reply_help(reply, message, match)
 
-    def process(self, message):
+    def process(self, RSE, message):
         _logger.debug('process...')
         name, match = self._find_command(message)
         func = getattr(self, f'_reply_{name}', None)
@@ -204,7 +215,8 @@ In a Comment:
         if func:
             reply.append('>' + match.group(0))
             reply.append('\n')
-            func(reply, message, match)
+            if self._check_valid_member(RSE, reply, match):
+                func(reply, message, match)
         else:
             self._reply_error(reply, message, None)
         _logger.debug('Reply is ' + str(reply))

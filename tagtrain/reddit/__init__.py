@@ -127,6 +127,14 @@ class RedditStreamingEvents(object):
         _logger.warning("Exception " + log)
         _logger.exception(exc)
 
+    def valid_user(self, user_name):
+        try:
+            self.reddit.redditor(user_name).fullname
+        except prawcore.exceptions.NotFound:
+            return False
+
+        return True
+
     def run(self):
         self._create_reddit()
 
@@ -145,7 +153,7 @@ class RedditStreamingEvents(object):
             _logger.info(log)
 
             try:
-                reply = self.process_object.process(message)
+                reply = self.process_object.process(self, message)
                 reply.process(message)
                 _logger.info('Reply sent...')
             except Exception as exc:
@@ -168,5 +176,5 @@ Our Reply:
 
 
 class RedditStreamingProcessBase(object):
-    def process(self, message):
+    def process(self, RSE, message):
         raise NotImplementedError('Base Class')
