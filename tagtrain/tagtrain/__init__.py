@@ -72,7 +72,7 @@ In a Comment or Message:
 
 In a Comment:
 
-- `u/TagTrain use <group-name>` - Loops through Members of specified Group, mentioning {MEMBER_LIMIT} members at a time.
+- `u/TagTrain use <group-name>` - Loops through Members of specified Group, mentioning {MEMBER_LIMIT} Members at a time.
 """)  # noqa: E501
 
     def _reply_use(self, reply, message, match):
