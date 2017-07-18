@@ -67,6 +67,12 @@ def remove_user_from_group(owner_name, group_name, member_name):
     return group
 
 
+def rename_group(owner_name, group_name, new_name):
+    group = find_group(owner_name, group_name)
+    group.name = new_name
+    _update_member_count(group)
+
+
 class BaseModel(peewee.Model):
     class Meta:
         database = database

@@ -12,6 +12,7 @@ MEMBER_LIMIT = 3
 R_INTRO = f'(?:/?u/{USERNAME} )?'
 C_GROUP = '(?:/?u/)?(?P<group>[^ ]+)'
 C_MEMBER = '(?:/?u/)?(?P<member>[^ ]+)'
+C_NAME = '(?:/?u/)?(?P<name>[^ ]+)'
 
 R_GROUPS = ('groups', re.compile(f'^{R_INTRO}groups$'))
 R_HELP = ('help', re.compile(f'^{R_INTRO}(hello|help)$'))
@@ -20,8 +21,9 @@ R_GROUP = ('group', re.compile(f'^{R_INTRO}group {C_GROUP}$'))
 R_CLEAR = ('clear', re.compile(f'^{R_INTRO}clear {C_GROUP}$'))
 R_ADD = ('add', re.compile(f'^{R_INTRO}add {C_MEMBER} to {C_GROUP}$'))
 R_REMOVE = ('remove', re.compile(f'^{R_INTRO}remove {C_MEMBER} from {C_GROUP}$'))
+R_RENAME = ('rename', re.compile(f'^{R_INTRO}rename {C_GROUP} to {C_NAME}$'))
 
-R_ALL = [R_HELP, R_GROUPS, R_GROUP, R_ADD, R_REMOVE, R_USE, R_CLEAR]
+R_ALL = [R_HELP, R_GROUPS, R_GROUP, R_ADD, R_REMOVE, R_USE, R_CLEAR, R_RENAME]
 
 _logger = logging.getLogger('tagtrain')
 
@@ -66,6 +68,8 @@ In a Comment or Message:
 - `u/TagTrain add <user> to <group-name>` - Adds specified reddit user to the specified Group.
 - `u/TagTrain remove <user> to <group-name>` - Removes specified Member from the specified Group, if Group is now empty it is deleted.
 - `u/TagTrain` clear <group-name> - Deletes specified Group and Members.
+- `u/TagTrain` rename <group-name> to <new-name> - Renames specified Group.
+
 In a Comment:
 
 - `u/TagTrain use <group-name>` - Loops through Members of specified Group, mentioning {MEMBER_LIMIT} members at a time.
@@ -172,6 +176,20 @@ In a Comment:
         else:
             tmp += f'Group has no Members left so it was removed'
         reply.append(tmp)
+
+    def _reply_rename(self, reply, message, match):
+        _logger.debug('_reply_rename')
+        owner_name = message.author.name
+        group_name = match.group('group')
+        new_name = match.group('name')
+
+        try:
+            data.rename_group(owner_name, group_name, new_name)
+        except data.Group.DoesNotExist:
+            reply.append(f'Group `{group_name}` does not exist, doing nothing')
+            return
+
+        reply.append(f'Group `{group_name}` renamed to `{new_name}`')
 
     def _reply_error(self, reply, message, match):
         _logger.debug('_reply_error...')

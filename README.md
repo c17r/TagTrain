@@ -21,9 +21,8 @@ People wanted to be mentioned so they didn't miss a bit.  Unfortunately, the "ta
 person to manage manually.  I thought the idea was neat and offered up solution.
 
 
-## TODOgit 
+## TODO
 - [ ] Finish tests
 - [ ] validate Member is a valid reddit user
-- [ ] rename Group
 - [ ] a way for others to add/remove from another person's Group (security issue? DDOS issue?)
 - [ ] multiple commands to the bot in a single message
