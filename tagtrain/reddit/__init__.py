@@ -1,7 +1,9 @@
 import datetime
 import logging
+import time
 import traceback
 import praw
+import prawcore
 
 _logger = logging.getLogger('reddit')
 
@@ -94,8 +96,12 @@ class RedditStreamingEvents(object):
             except KeyboardInterrupt:
                 _logger.info('Shutdown requested, stopping...')
                 raise
+            except prawcore.exceptions.RequestException as e:
+                _logger.error('Prawcore Exception: ' + str(e))
+                time.sleep(2.0)
+                self._create_reddit()
             except Exception as e:
-                _logger.exception(f'Praw Exception: {e}')
+                _logger.exception(f'--\n--\nUnplanned Exception: {e}\n--\n')
                 self._create_reddit()
 
     def _get_data_inner(self):
