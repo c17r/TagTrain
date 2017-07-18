@@ -157,14 +157,13 @@ In a Comment:
         member_name = match.group('member')
 
         group, created = data.add_user_to_group(owner_name, group_name, member_name)
-        if group.member_count == 1:
-            reply.append(f'Group `{group.name}` created with `{member_name}` as the first Member.')
+        if not created:
+            reply.append(f'`{member_name}` already Member of Group `{group.name}`, {group.member_count} total Members')
         else:
-            if created:
-                reply.append(f'`{member_name}` added to Group `{group.name}`, {group.member_count} total Members')
+            if group.member_count == 1:
+                reply.append(f'Group `{group.name}` created with `{member_name}` as the first Member.')
             else:
-                reply.append(
-                    f'`{member_name}` already Member of Group `{group.name}`, {group.member_count} total Members')
+                reply.append(f'`{member_name}` added to Group `{group.name}`, {group.member_count} total Members')
 
     def _reply_remove(self, reply, message, match):
         _logger.debug('_reply_remove...')
