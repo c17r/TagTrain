@@ -5,7 +5,7 @@ from . import TagTrainResponse, C_OWNER, C_GROUP
 class AddMe(TagTrainResponse):
     TYPE = TagTrainResponse.TYPE_COMMENTORMESSAGE
     CMD_REGEX = f'addme to {C_OWNER} {C_GROUP}'
-    HELP_TEXT = "`u/TagTrain addme to <user> <group-name>` - Adds yourself to the specified User's Group"
+    HELP_TEXT = "`u/{botname} addme to <user> <group-name>` - Adds yourself to the specified User's Group"
 
     def run(self, reply, message, match):
         self.LOGGER.debug('addme...')

@@ -8,7 +8,7 @@ def _format_line(group):
 
 class Groups(TagTrainResponse):
     CMD_REGEX = f'groups'
-    HELP_TEXT = "`u/TagTrain groups` - Displays name of all your Groups with count of Members."
+    HELP_TEXT = "`u/{botname} groups` - Displays name of all your Groups with count of Members."
     TYPE = TagTrainResponse.TYPE_COMMENTORMESSAGE
 
     def run(self, reply, message, match):

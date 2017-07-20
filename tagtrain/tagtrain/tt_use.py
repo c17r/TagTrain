@@ -5,7 +5,7 @@ from . import TagTrainResponse, C_GROUP, grouper, MEMBER_LIMIT
 class Use(TagTrainResponse):
     TYPE = TagTrainResponse.TYPE_COMMENT
     CMD_REGEX = f'use {C_GROUP}'
-    HELP_TEXT = (f"`u/TagTrain use <group-name>` - "
+    HELP_TEXT = ("`u/{botname} use <group-name>` - "
                  f"Loops through Members of specified Group, mentioning {MEMBER_LIMIT} Members at a time.")
 
     def run(self, reply, message, match):

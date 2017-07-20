@@ -4,7 +4,7 @@ from . import TagTrainResponse
 
 class Help(TagTrainResponse):
     CMD_REGEX = f'(hello|help)'
-    HELP_TEXT = "`u/TagTrain help` or `u/TagTrain hello` - this message"
+    HELP_TEXT = "`u/{botname} help` or `u/{botname} hello` - this message"
     TYPE = TagTrainResponse.TYPE_COMMENTORMESSAGE
 
     MAIN_TEXT = """
@@ -56,4 +56,4 @@ TagTrain Bot, here to help you mass mention users in a Thread
             reply.append('\n')
 
             for cmd in cmds:
-                reply.append('- ' + cmd.HELP_TEXT)
+                reply.append('- ' + cmd.help)

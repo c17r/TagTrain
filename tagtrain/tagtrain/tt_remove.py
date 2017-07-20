@@ -4,7 +4,7 @@ from . import TagTrainResponse, C_MEMBER, C_GROUP
 
 class Remove(TagTrainResponse):
     CMD_REGEX = f'remove {C_MEMBER} from {C_GROUP}'
-    HELP_TEXT = ("`u/TagTrain remove <user> to <group-name>` - "
+    HELP_TEXT = ("`u/{botname} remove <user> to <group-name>` - "
                  "Removes specified Member from the specified Group, if Group is now empty it is deleted.")
     TYPE = TagTrainResponse.TYPE_COMMENTORMESSAGE
 

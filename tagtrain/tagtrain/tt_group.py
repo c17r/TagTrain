@@ -10,7 +10,7 @@ def _format_member(member):
 
 class Group(TagTrainResponse):
     CMD_REGEX = f'group {C_GROUP}'
-    HELP_TEXT = "`u/TagTrain group <group-name>` - Displays all Members for specified Group."
+    HELP_TEXT = "`u/{botname} group <group-name>` - Displays all Members for specified Group."
     TYPE = TagTrainResponse.TYPE_COMMENTORMESSAGE
 
     def run(self, reply, message, match):

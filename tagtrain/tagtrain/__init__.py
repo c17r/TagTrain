@@ -166,6 +166,12 @@ class TagTrainResponse(object):
         reply.append(f'Command can not be used in a {self.TYPE_TEXT[msg_type]}, skipping.')
         return False
 
+    @property
+    def help(self):
+        if not getattr(self, '_processed_help', None):
+            self._processed_help = self.HELP_TEXT.replace('{botname}', self.APP.config["reddit"]["username"])
+        return self._processed_help
+
     def search(self, line):
         if self.CMD_REGEX:
             return self.CMD_REGEX.search(line)

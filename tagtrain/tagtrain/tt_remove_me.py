@@ -4,7 +4,7 @@ from . import TagTrainResponse, C_OWNER, C_GROUP
 
 class RemoveMe(TagTrainResponse):
     CMD_REGEX = f'removeme from {C_OWNER} {C_GROUP}'
-    HELP_TEXT = "`u/TagTrain removeme from <user> <group-name>` - Removes yourself from specified User's Group"
+    HELP_TEXT = "`u/{botname} removeme from <user> <group-name>` - Removes yourself from specified User's Group"
     TYPE = TagTrainResponse.TYPE_COMMENTORMESSAGE
 
     def run(self, reply, message, match):

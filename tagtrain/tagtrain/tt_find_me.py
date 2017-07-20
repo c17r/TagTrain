@@ -10,7 +10,7 @@ def _format_group(group):
 
 class FindMe(TagTrainResponse):
     CMD_REGEX = f'findme'
-    HELP_TEXT = "`u/TagTrain findme` - Lists all Groups that you are a Member of."
+    HELP_TEXT = "`u/{botname} findme` - Lists all Groups that you are a Member of."
     TYPE = TagTrainResponse.TYPE_COMMENTORMESSAGE
 
     def run(self, reply, message, match):

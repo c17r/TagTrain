@@ -10,7 +10,7 @@ def _format_group(group):
 
 class ClearMe(TagTrainResponse):
     CMD_REGEX = f'clearme'
-    HELP_TEXT = "`U/TagTrain clearme` - Removes you from all Groups."
+    HELP_TEXT = "`u/{botname} clearme` - Removes you from all Groups."
     TYPE = TagTrainResponse.TYPE_COMMENTORMESSAGE
 
     def run(self, reply, message, match):

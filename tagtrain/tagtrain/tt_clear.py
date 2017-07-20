@@ -4,7 +4,7 @@ from . import TagTrainResponse, C_GROUP
 
 class Clear(TagTrainResponse):
     CMD_REGEX = f'clear {C_GROUP}'
-    HELP_TEXT = "`u/TagTrain clear <group-name>` - Deletes specified Group and Members."
+    HELP_TEXT = "`u/{botname} clear <group-name>` - Deletes specified Group and Members."
     TYPE = TagTrainResponse.TYPE_COMMENTORMESSAGE
 
     def run(self, reply, message, match):

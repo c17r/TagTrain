@@ -4,7 +4,7 @@ from . import TagTrainResponse, C_GROUP, C_NAME
 
 class Rename(TagTrainResponse):
     CMD_REGEX = f'rename {C_GROUP} to {C_NAME}'
-    HELP_TEXT = "`u/TagTrain rename <group-name> to <new-name>` - Renames specified Group."
+    HELP_TEXT = "`u/{botname} rename <group-name> to <new-name>` - Renames specified Group."
     TYPE = TagTrainResponse.TYPE_COMMENTORMESSAGE
 
     def run(self, reply, message, match):
