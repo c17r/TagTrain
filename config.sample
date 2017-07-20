@@ -1,0 +1,11 @@
+{
+  "reddit": {
+    "client_id": "<reddit-api-client-i>",
+    "client_secret": "<reddit-api-client-secret>",
+    "username": "<reddit-username>",
+    "password": "<reddit-password>",
+    "user_agent": "python:com.c17r.tagtrain: dev (by /u/c17r)"
+  },
+  "validate_username": true
+}
+
