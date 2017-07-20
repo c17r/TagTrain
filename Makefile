@@ -1,6 +1,6 @@
 
 init:
-	pip install -u pip-tools
+	pip install -U pip-tools
 	pip-sync requirements/dev.txt
 
 dev-reqs:
@@ -12,9 +12,12 @@ reqs:
 test: clean flake
 	pytest -v
 
+coverage: clean flake
+	py.test --cov-report term-missing:skip-covered --cov=.
+
 flake:
 	flake8
 
 clean:
-	find . -name '*.pyc' -delete
+	find . -regex '*.py(c|o)' -delete
 	find . -name '__pycache__' -type d -delete

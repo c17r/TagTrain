@@ -1,52 +1,70 @@
-import re
+import inspect
 import logging
+import os
+import re
+from importlib import import_module
 from itertools import zip_longest
 
-from .. import data
-from ..reddit import RedditStreamingProcessBase, Reply
+from ..reddit import Reply
 
-USERNAME = 'TagTrainTest'
-USERNAME_FULL = f'u/{USERNAME}'
 MEMBER_LIMIT = 3
 
-R_INTRO = f'(?:/?u/{USERNAME} )?'
-C_GROUP = '(?:/?u/)?(?P<group>[^ ]+)'
+C_GROUP = '(?P<group>[^ ]+)'
+C_NAME = '(?P<name>[^ ]+)'
 C_MEMBER = '(?:/?u/)?(?P<member>[^ ]+)'
-C_NAME = '(?:/?u/)?(?P<name>[^ ]+)'
+C_OWNER = '(?:/?u/)?(?P<owner>[^ ]+)'
 
-R_GROUPS = ('groups', re.compile(f'^{R_INTRO}groups$'))
-R_HELP = ('help', re.compile(f'^{R_INTRO}(hello|help)$'))
-R_USE = ('use', re.compile(f'^{R_INTRO}use {C_GROUP}$'))
-R_GROUP = ('group', re.compile(f'^{R_INTRO}group {C_GROUP}$'))
-R_CLEAR = ('clear', re.compile(f'^{R_INTRO}clear {C_GROUP}$'))
-R_ADD = ('add', re.compile(f'^{R_INTRO}add {C_MEMBER} to {C_GROUP}$'))
-R_REMOVE = ('remove', re.compile(f'^{R_INTRO}remove {C_MEMBER} from {C_GROUP}$'))
-R_RENAME = ('rename', re.compile(f'^{R_INTRO}rename {C_GROUP} to {C_NAME}$'))
-
-R_ALL = [R_HELP, R_GROUPS, R_GROUP, R_ADD, R_REMOVE, R_USE, R_CLEAR, R_RENAME]
 
 _logger = logging.getLogger('tagtrain')
 
 
-def _grouper(iterable, n, fillvalue=None):
+def grouper(iterable, n, fillvalue=None):
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
 
 
-class TagTrain(RedditStreamingProcessBase):
-    def __init__(self, db_path):
-        data.init(db_path)
+def _get_commands(validate_func):
+    _logger.debug('_get_commands...')
 
-    def _find_command(self, message):
-        _logger.debug('_find_command...')
-        for n, r in R_ALL:
-            for line in message.body.split('\n'):
-                rv = r.search(line)
-                if rv:
-                    return n, rv
-        return None, None
+    path = os.path.dirname(os.path.abspath(__file__))
+    files = ('.' + file[:-3] for file in os.listdir(path) if file.startswith('tt_') and file.endswith('.py'))
 
-    def _check_valid_member(self, RSE, reply, match):
+    for mod in [import_module(file, 'tagtrain.tagtrain') for file in files]:
+        for name, obj in inspect.getmembers(mod):
+            if validate_func(name, obj):
+                yield name, obj
+
+
+class TagTrain(object):
+    config = None
+    cmds = None
+    R_INTRO = None
+
+    def __init__(self, config):
+        self.config = config
+        self._init_intro()
+        self._init_commands()
+
+    def __call__(self, RSE, message):
+        _logger.debug('process...')
+
+        reply = Reply()
+        for func, match in self._parse_commands(message):
+            if reply.has_text():
+                reply.append('\n&nbsp;\n')
+
+            reply.append(f'\n> {match.group(0)}\n')
+            if func:
+                if self._check_valid_redditor(RSE, reply, match):
+                    func(reply, message, match)
+
+        _logger.debug(f'Reply is {reply}')
+        return reply
+
+    def _check_valid_redditor(self, RSE, reply, match):
+        if not self.config['validate_username']:
+            return True
+
         try:
             user = match.group('member')
         except IndexError:
@@ -54,169 +72,103 @@ class TagTrain(RedditStreamingProcessBase):
 
         if RSE.valid_user(user):
             return True
-        reply.append(f'`{user}` is not a valid Reddit user, stopping')
+
+        reply.append(f'`{user}` is not a valid Reddit user, skipping.')
         return False
 
-    def _reply_help(self, reply, message, match):
-        _logger.debug('_reply_help...')
-        reply.append(f"""
-TagTrain Bot, here to help you mass mention users in a Thread
+    def _init_intro(self):
+        self.R_INTRO = f'(?:/?u/{self.config["reddit"]["username"]} )?'
 
-- Groups are specific to a reddit user.  You can not add/remove/use another reddit user's list.
-- Group names need to be unique per reddit user.
-- Group names can not contain spaces.  Use dash, underscore, period, etc as a word separator.
-- Members can be specified as `name`, `u/name`, or `/u/name`.
-- A reddit user can (currently) have unlimited Groups.
-- A Group can (currently) have unlimited Members.
-- Why not MentionTrain or MessageTrain? TagTrain is nicely alliterative.
-- Questions/Comments? Message `/u/c17r`.
+    def _init_commands(self):
+        _logger.debug('_init_commands')
 
-In a Comment or Message:
+        existing_regex = set()
+        valid_types = {
+            TagTrainResponse.TYPE_COMMENT,
+            TagTrainResponse.TYPE_MESSAGE,
+            TagTrainResponse.TYPE_COMMENTORMESSAGE,
+        }
 
-- `u/TagTrain help` or `u/TagTrain hello` - Displays this message.
-- `u/TagTrain groups` - Displays name of all your Groups with count of Members.
-- `u/TagTrain group <group-name>` - Displays all Members for specified Group.
-- `u/TagTrain add <user> to <group-name>` - Adds specified reddit user to the specified Group.
-- `u/TagTrain remove <user> to <group-name>` - Removes specified Member from the specified Group, if Group is now empty it is deleted.
-- `u/TagTrain` clear <group-name> - Deletes specified Group and Members.
-- `u/TagTrain` rename <group-name> to <new-name> - Renames specified Group.
+        def validate(name, obj):
+            if not inspect.isclass(obj):
+                return False
+            mro = obj.mro()
+            if TagTrainResponse not in mro or mro.index(TagTrainResponse) == 0:
+                return False
+            regex = obj.CMD_REGEX
+            if regex in existing_regex:
+                _logger.warning(f'Command {name} using existing regex, skipping')
+                return False
+            existing_regex.add(regex)
+            if obj.TYPE not in valid_types:
+                _logger.warning(f'Command {name} not valid type, skipping')
+                return False
+            if not obj.HELP_TEXT:
+                _logger.warning(f'Command {name} missing help text, skipping')
+                return False
 
-In a Comment:
+            return True
 
-- `u/TagTrain use <group-name>` - Loops through Members of specified Group, mentioning {MEMBER_LIMIT} Members at a time.
-""")  # noqa: E501
+        self.cmds = [cls(self) for _, cls in _get_commands(validate)]
+        _logger.info(f'{len(self.cmds)} commands loaded')
 
-    def _reply_use(self, reply, message, match):
-        _logger.debug('_reply_use...')
-        owner_name = message.author.name
-        group_name = match.group('group')
+    def _parse_commands(self, message):
+        _logger.debug('_parse_commands...')
 
-        try:
-            group = data.find_group(owner_name, group_name)
+        for line in message.body.split('\n'):
+            for cmd in self.cmds:
+                rv = cmd.search(line)
+                if rv:
+                    yield cmd, rv
 
-            reply.append(f'Using Group `{group.name}` to notify {group.member_count} Members')
-            for groupings in _grouper(group.members.iterator(), MEMBER_LIMIT):
-                tmp = ', '.join([f'u/{member.reddit_name}' for member in groupings if member])
-                reply.new_child(f'`{group.reddit_name}` used `TagTrain` Bot to mention you: {tmp}')
 
-        except data.Group.DoesNotExist:
-            reply.append(f'Group `{group_name}` does not exist, no Members.')
+class TagTrainResponse(object):
+    TYPE_MESSAGE = 1
+    TYPE_COMMENT = 2
+    TYPE_COMMENTORMESSAGE = 3
 
-    def _reply_groups(self, reply, message, match):
-        _logger.debug('_reply_groups...')
-        owner_name = message.author.name
+    TYPE_TEXT = {
+        TYPE_COMMENT: 'Comment',
+        TYPE_MESSAGE: 'Message',
+        TYPE_COMMENTORMESSAGE: 'Comment or Message',
+    }
 
-        groups = data.find_groups(owner_name)
+    CMD_REGEX = None
+    HELP_TEXT = None
+    TYPE = None
 
-        response = [f'`{g.name}` | {g.member_count}' for g in groups]
-        if response:
-            response.insert(0, 'Groups | Member Counts')
-            response.insert(1, '------ | -------------')
-            reply.append('\n'.join(response))
-        else:
-            reply.append('You have no Groups')
+    LOGGER = _logger
+    APP = None
 
-    def _reply_group(self, reply, message, match):
-        _logger.debug('_reply_group...')
-        owner_name = message.author.name
-        group_name = match.group('group')
+    def __init__(self, app):
+        self.APP = app
+        self._init_regex()
 
-        try:
-            group = data.find_group(owner_name, group_name)
-            sorted_members = sorted(group.members, key=lambda x: x.reddit_name.lower())
-
-            response = [
-                f'Group `{group.name}` has {group.member_count} Members:',
-                '\n'
-                ' | | | ',
-                ' - | - | - '
-            ]
-            for groupings in _grouper(sorted_members, MEMBER_LIMIT):
-                response.append(' | '.join([f'{"`" + g.reddit_name + "`" if g else ""}' for g in groupings]))
-            reply.append('\n'.join(response))
-
-        except data.Group.DoesNotExist:
-            reply.append(f'Group `{group_name}` does not exist, no Members.')
-
-    def _reply_clear(self, reply, message, match):
-        _logger.debug('_reply_clear')
-        owner_name = message.author.name
-        group_name = match.group('group')
-
-        try:
-            data.remove_group(owner_name, group_name)
-            reply.append(f'Group `{group_name}` and all Members removed.')
-
-        except data.Group.DoesNotExist:
-            reply.append(f'Group`{group_name}` does not exist.')
-
-    def _reply_add(self, reply, message, match):
-        _logger.debug('_reply_add...')
-        owner_name = message.author.name
-        group_name = match.group('group')
-        member_name = match.group('member')
-
-        group, created = data.add_user_to_group(owner_name, group_name, member_name)
-        if not created:
-            reply.append(f'`{member_name}` already Member of Group `{group.name}`, {group.member_count} total Members')
-        else:
-            if group.member_count == 1:
-                reply.append(f'Group `{group.name}` created with `{member_name}` as the first Member.')
-            else:
-                reply.append(f'`{member_name}` added to Group `{group.name}`, {group.member_count} total Members')
-
-    def _reply_remove(self, reply, message, match):
-        _logger.debug('_reply_remove...')
-        owner_name = message.author.name
-        group_name = match.group('group')
-        member_name = match.group('member')
-
-        try:
-            group = data.remove_user_from_group(owner_name, group_name, member_name)
-        except data.Group.DoesNotExist:
-            reply.append(f'Group `{group_name}` does not exist, doing nothing')
-            return
-        except data.Member.DoesNotExist:
-            reply.append(f'`{member_name}` not Member of Group `{group_name}`')
+    def __call__(self, reply, message, match):
+        if not self._valid_type(reply, message):
             return
 
-        tmp = f'`{member_name}` removed from Group `{group.name}`, '
-        if group.member_count > 0:
-            tmp += f'{group.member_count} total Members'
-        else:
-            tmp += f'Group has no Members left so it was removed'
-        reply.append(tmp)
+        return self.run(reply, message, match)
 
-    def _reply_rename(self, reply, message, match):
-        _logger.debug('_reply_rename')
-        owner_name = message.author.name
-        group_name = match.group('group')
-        new_name = match.group('name')
+    def _init_regex(self):
+        if self.CMD_REGEX:
+            regex = self.CMD_REGEX
+            self.CMD_REGEX = re.compile(f'^{self.APP.R_INTRO}{regex}$', re.I)
 
-        try:
-            data.rename_group(owner_name, group_name, new_name)
-        except data.Group.DoesNotExist:
-            reply.append(f'Group `{group_name}` does not exist, doing nothing')
-            return
+    def _valid_type(self, reply, message):
+        msg_type = TagTrainResponse.TYPE_COMMENT if message.subreddit else TagTrainResponse.TYPE_MESSAGE
 
-        reply.append(f'Group `{group_name}` renamed to `{new_name}`')
+        if self.TYPE == msg_type:
+            return True
+        if self.TYPE == self.TYPE_COMMENTORMESSAGE and msg_type in {self.TYPE_MESSAGE, self.TYPE_COMMENT}:
+            return True
 
-    def _reply_error(self, reply, message, match):
-        _logger.debug('_reply_error...')
-        reply.append('Sorry, unknown command. Showing help')
-        self._reply_help(reply, message, match)
+        reply.append(f'Command can not be used in a {self.TYPE_TEXT[msg_type]}, skipping.')
+        return False
 
-    def process(self, RSE, message):
-        _logger.debug('process...')
-        name, match = self._find_command(message)
-        func = getattr(self, f'_reply_{name}', None)
-        reply = Reply()
-        if func:
-            reply.append('>' + match.group(0))
-            reply.append('\n')
-            if self._check_valid_member(RSE, reply, match):
-                func(reply, message, match)
-        else:
-            self._reply_error(reply, message, None)
-        _logger.debug('Reply is ' + str(reply))
-        return reply
+    def search(self, line):
+        if self.CMD_REGEX:
+            return self.CMD_REGEX.search(line)
+
+    def run(self, reply, message, match):
+        raise NotImplementedError('Base Class')

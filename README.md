@@ -23,5 +23,6 @@ person to manage manually.  I thought the idea was neat and offered up solution.
 
 ## TODO
 - [ ] Finish tests
-- [ ] a way for others to add/remove from another person's Group (security issue? DDOS issue?)
-- [ ] multiple commands to the bot in a single message
+- [ ] Blacklisting in both directions (a person disallows themself from being added to any list, a person prevents another from adding themselves to any of their lists)
+- [ ] List locking (prevent others from adding themselves)
+- [ ] More configurability around bot name.  Right now, help text is hard coded with `u/TagTrain`

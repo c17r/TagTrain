@@ -5,9 +5,9 @@ import argparse
 import daemonocle
 import logbook
 
-from tagtrain.tagtrain import TagTrain
+from tagtrain import data
 from tagtrain.reddit import RedditStreamingEvents
-
+from tagtrain.tagtrain import TagTrain
 
 _logger = logging.getLogger(__name__)
 
@@ -59,8 +59,11 @@ def create_args():
 def main():
     args = create_args()
     config = get_config(args.config_file)
-    tagtrain = TagTrain(args.db_file)
-    reddit = RedditStreamingEvents(config, tagtrain)
+
+    data.init(args.db_file)
+    tag_train = TagTrain(config)
+
+    reddit = RedditStreamingEvents(config, tag_train)
 
     while True:
         try:

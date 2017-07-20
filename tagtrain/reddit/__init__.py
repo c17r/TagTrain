@@ -8,6 +8,12 @@ import prawcore
 _logger = logging.getLogger('reddit')
 
 
+def _preface_each_line(text, preface):
+    lines = text.split('\n')
+    lines = [preface + line for line in lines]
+    return '\n'.join(lines)
+
+
 class Reply(object):
     body = None
     children = None
@@ -25,7 +31,7 @@ class Reply(object):
         body = '\n'.join(self.body)
         children = ''
         for child in self.children:
-            children += '\n'.join(['\t\t' + line for line in str(child).split('\n')])
+            children += _preface_each_line(str(child), '\t\t')
 
         return f'''
 {sep}
@@ -68,6 +74,11 @@ Children: {children}
             return
         self.children[-1].prepend(msg)
 
+    def has_text(self):
+        if self.body or self.children:
+            return True
+        return False
+
     def process(self, message):
         body = '\n'.join(self.body)
         mine = message.reply(body)
@@ -79,50 +90,51 @@ Children: {children}
 class RedditStreamingEvents(object):
     config = None
     reddit = None
-    process_object = None
+    process_func = None
 
-    def __init__(self, config, process_object):
+    def __init__(self, config, process_func):
         self.config = config
-        self.process_object = process_object
+        self.process_func = process_func
 
     def _create_reddit(self):
         _logger.debug('Creating reddit object...')
-        self.reddit = praw.Reddit(**self.config)
+        self.reddit = praw.Reddit(**self.config['reddit'])
 
     def _get_data(self):
+        _logger.debug('_get_data...')
         while True:
             try:
-                yield from self._get_data_inner()
+                yield from self._get_data_backlog()
+                yield from self._get_data_stream()
+
             except KeyboardInterrupt:
                 _logger.info('Shutdown requested, stopping...')
                 raise
+
             except prawcore.exceptions.RequestException as e:
                 _logger.error('Prawcore Exception: ' + str(e))
                 time.sleep(2.0)
                 self._create_reddit()
+
             except Exception as e:
                 _logger.exception(f'--\n--\nUnplanned Exception: {e}\n--\n')
                 self._create_reddit()
 
-    def _get_data_inner(self):
-        while True:
-            messages = list(self.reddit.inbox.unread(limit=None))
-            if not messages:
-                break
-
+    def _get_data_backlog(self):
+        messages = list(self.reddit.inbox.unread(limit=None))
+        while messages:
             _logger.info('Processing backlog...')
             for msg in messages:
                 yield msg
+            messages = list(self.reddit.inbox.unread(limit=None))
 
+    def _get_data_stream(self):
         _logger.info('Processing stream...')
-        for msg in self.reddit.inbox.stream():
-            yield msg
-
-    def _process_event(self, message):
-        return self.process_object.process(message)
+        yield from self.reddit.inbox.stream()
 
     def _send_error_report(self, log, exc, stack):
-        lines = '\n'.join([f'    {line}' for line in stack.split('\n')])
+        _logger.debug('_send_error_report...')
+        lines = _preface_each_line(stack, '    ')
         self.reddit.redditor('c17r').message('TagTrain Exception', f'{log}\n\n{lines}')
         _logger.warning("Exception " + log)
         _logger.exception(exc)
@@ -136,6 +148,7 @@ class RedditStreamingEvents(object):
         return True
 
     def run(self):
+        _logger.debug('run...')
         self._create_reddit()
 
         for message in self._get_data():
@@ -153,28 +166,16 @@ class RedditStreamingEvents(object):
             _logger.info(log)
 
             try:
-                reply = self.process_object.process(self, message)
-                reply.process(message)
-                _logger.info('Reply sent...')
+                reply = self.process_func(self, message)
+                if reply.has_text():
+                    reply.process(message)
+                    _logger.info('Reply sent...')
+                else:
+                    _logger.info('Empty reply, doing nothing...')
+
             except Exception as exc:
                 stack = traceback.format_exc()
                 self._send_error_report(log, exc, stack)
+
             finally:
                 message.mark_read()
-
-
-class RedditStreamingEventsTest(RedditStreamingEvents):
-    def _reply(self, message, reply):
-        print(f"""
-----
-Original Message:
-{message.body}
---
-Our Reply:
-{reply}
-----""")
-
-
-class RedditStreamingProcessBase(object):
-    def process(self, RSE, message):
-        raise NotImplementedError('Base Class')
