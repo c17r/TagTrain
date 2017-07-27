@@ -92,17 +92,21 @@ class TagTrain(object):
         def validate(name, obj):
             if not inspect.isclass(obj):
                 return False
+
             mro = obj.mro()
             if TagTrainResponse not in mro or mro.index(TagTrainResponse) == 0:
                 return False
+
             regex = obj.CMD_REGEX
             if regex in existing_regex:
                 _logger.warning(f'Command {name} using existing regex, skipping')
                 return False
             existing_regex.add(regex)
+
             if obj.TYPE not in valid_types:
                 _logger.warning(f'Command {name} not valid type, skipping')
                 return False
+
             if not obj.HELP_TEXT:
                 _logger.warning(f'Command {name} missing help text, skipping')
                 return False
