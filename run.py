@@ -18,14 +18,13 @@ def get_config(path):
     return json.loads(raw)
 
 
-def config_logging():
+def config_logging(args):
     logging.getLogger("urllib3").setLevel(logging.INFO)
     logging.getLogger("prawcore").setLevel(logging.INFO)
     logging.getLogger("peewee").setLevel(logging.INFO)
     logbook.set_datetime_format('local')
     logbook.compat.redirect_logging()
 
-    args = create_args()
     if args.action == 'cli':
         logbook.StreamHandler(sys.stdout).push_application()
     else:
@@ -51,7 +50,7 @@ def create_args():
     parser.add_argument('--pid-file', type=str, default='./tagtrain.pid')
     parser.add_argument('--log-file', type=str, default='./tagtrain.log')
     parser.add_argument('--db-file', type=str, default='./tagtrain.db')
-    parser.add_argument('--config-file', type=str, default='./secrets.json')
+    parser.add_argument('--config-file', type=str, default='./config.json')
 
     return parser.parse_args()
 
@@ -77,7 +76,7 @@ def main():
 
 if __name__ == '__main__':
     args = create_args()
-    config_logging()
+    config_logging(args)
 
     if args.action != 'cli':
         daemon = daemonocle.Daemon(
