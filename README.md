@@ -24,4 +24,3 @@ person to manage manually.  I thought the idea was neat and offered up solution.
 ## TODO
 - [ ] Finish tests
 - [ ] Blacklisting in both directions (a person disallows themself from being added to any list, a person prevents another from adding themselves to any of their lists)
-- [ ] List locking (prevent others from adding themselves)

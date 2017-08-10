@@ -1,4 +1,4 @@
-from . import Group, Member, _update_member_count
+from . import Group, Member, _update_member_count, _now
 
 
 def find_group(owner_name, group_name):
@@ -49,3 +49,26 @@ def rename_group(owner_name, group_name, new_name):
     group = find_group(owner_name, group_name)
     group.name = new_name
     _update_member_count(group)
+
+
+class InvalidRequest(Exception):
+    pass
+
+
+def lock_group(owner_name, group_name):
+    return _lock_unlock(owner_name, group_name, True)
+
+
+def unlock_group(owner_name, group_name):
+    return _lock_unlock(owner_name, group_name, False)
+
+
+def _lock_unlock(owner_name, group_name, lock):
+    group = find_group(owner_name, group_name)
+
+    if (lock and group.locked) or (not lock and not group.locked):
+        raise InvalidRequest
+
+    group.locked = _now() if lock else None
+    group.save()
+    return group

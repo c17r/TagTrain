@@ -33,6 +33,7 @@ class Group(BaseModel):
     reddit_name = peewee.CharField(max_length=30)
     added = peewee.DateTimeField(default=_now)
     member_count = peewee.IntegerField(default=0)
+    locked = peewee.DateTimeField(null=True)
 
     class Meta:
         indexes = (

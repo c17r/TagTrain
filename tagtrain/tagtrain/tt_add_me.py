@@ -16,7 +16,11 @@ class AddMe(TagTrainResponse):
         try:
             # we first try to find it so it will throw an exception if it doesn't exist.  We don't want
             # someone creating a list that is owned by someone else.
-            data.by_owner.find_group(owner_name, group_name)
+            group = data.by_owner.find_group(owner_name, group_name)
+
+            if group.locked:
+                reply.append(f'Group `{group_name}` is locked.  Only `{owner_name}` can add you.  Skipping.')
+                return
 
             group, created = data.by_owner.add_user_to_group(owner_name, group_name, member_name)
 
