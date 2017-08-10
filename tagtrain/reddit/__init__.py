@@ -17,12 +17,10 @@ def _preface_each_line(text, preface):
 class Reply(object):
     body = None
     children = None
-    last_child = None
 
     def __init__(self, msg=None):
         self.body = []
         self.children = []
-        self.last_child = None
         if msg:
             self.append(msg)
 
@@ -60,7 +58,7 @@ Children: {children}
     def new_child(self, msg):
         if not msg:
             return
-        self.last_child = child = Reply(msg)
+        child = Reply(msg)
         self.children.append(child)
         return child
 
