@@ -157,7 +157,7 @@ class RedditStreamingEvents(object):
             log = (
                 f'Processing'
                 f' {message.subreddit_name_prefixed if message.subreddit_name_prefixed else "Direct"} Comment'
-                f' from {message.author.name}'
+                f' from {message.author.name if message.author else "Subreddit Message"}'
                 f' sent {datetime.datetime.fromtimestamp(int(message.created_utc)).strftime("%Y-%m-%d %H:%M:%S")}'
                 f' : {message.body}'
             )
