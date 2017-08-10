@@ -21,6 +21,10 @@ People wanted to be mentioned so they didn't miss a bit.  Unfortunately, the "ta
 person to manage manually.  I thought the idea was neat and offered up solution.
 
 
+## Priority TODO
+- [ ] Handle sending important messages to owner (i.e. me)
+- [ ] Convert `use` command from "username pings" to direct messages since Reddit has temporarily suspended the bot for "username ping spam"
+
 ## TODO
 - [ ] Finish tests
 - [ ] Blacklisting in both directions (a person disallows themself from being added to any list, a person prevents another from adding themselves to any of their lists)
