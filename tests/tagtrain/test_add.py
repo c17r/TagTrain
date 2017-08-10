@@ -13,7 +13,7 @@ def test_existing_member(add_user_to_group):
     Add(app).run(reply, message, match)
 
     add_user_to_group.assert_called_once_with('AuthorName', 'GroupName', 'MemberName')
-    reply.append.assert_called_once_with('`MemberName` already Member of Group `GroupName`, skipping.')
+    reply.append.assert_called_once_with('`MemberName` already Member of Group `GroupName`.  Skipping.')
 
 
 @patch('tagtrain.data.by_owner.add_user_to_group')

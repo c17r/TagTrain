@@ -18,11 +18,11 @@ class RemoveMe(TagTrainResponse):
             member_count = group.member_count
 
         except data.Group.DoesNotExist:
-            reply.append(f'User `{owner_name}` does not have a Group `{group_name}`, skipping.')
+            reply.append(f'User `{owner_name}` does not have a Group `{group_name}`.  Skipping.')
             return
 
         except data.Member.DoesNotExist:
-            reply.append(f"You are not a Member of `{owner_name}`'s Group `{group_name}`, skipping.")
+            reply.append(f"You are not a Member of `{owner_name}`'s Group `{group_name}`.  Skipping.")
             return
 
         reply.append(f"You were removed from `{owner_name}`'s Group `{group_name}`, {member_count} total Members.")

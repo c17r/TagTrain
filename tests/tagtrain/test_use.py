@@ -14,7 +14,7 @@ def test_unknown_group(find_group):
     Use(app).run(reply, message, match)
 
     find_group.assert_called_once_with('AuthorName', 'GroupName')
-    reply.append.assert_called_once_with('Group `GroupName` does not exist, skipping.')
+    reply.append.assert_called_once_with('Group `GroupName` does not exist.  Skipping.')
 
 
 @patch('tagtrain.data.by_owner.find_group')
@@ -27,7 +27,7 @@ def test_good(find_group):
         MagicMock(reddit_name='User4'),
     ])
     find_group.return_value = group
-    
+
 
     app, reply, message, match = fake.create_all()
 

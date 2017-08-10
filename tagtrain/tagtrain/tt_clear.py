@@ -16,7 +16,7 @@ class Clear(TagTrainResponse):
             data.by_owner.remove_group(owner_name, group_name)
 
         except data.Group.DoesNotExist:
-            reply.append(f'Group `{group_name}` does not exist, skipping.')
+            reply.append(f'Group `{group_name}` does not exist.  Skipping.')
             return
 
         reply.append(f'Group `{group_name}` and all Members removed.')

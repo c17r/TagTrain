@@ -16,7 +16,7 @@ class Add(TagTrainResponse):
         group, created = data.by_owner.add_user_to_group(owner_name, group_name, member_name)
 
         if not created:
-            reply.append(f'`{member_name}` already Member of Group `{group.name}`, skipping.')
+            reply.append(f'`{member_name}` already Member of Group `{group.name}`.  Skipping.')
             return
 
         if group.member_count == 1:

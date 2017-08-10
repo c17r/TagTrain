@@ -16,7 +16,7 @@ def test_unknown_group(find_group, add_user_to_group):
 
     find_group.assert_called_once_with('OwnerName', 'GroupName')
     add_user_to_group.assert_not_called()
-    reply.append.assert_called_once_with('User `OwnerName` does not have a Group `GroupName`, skipping.')
+    reply.append.assert_called_once_with('User `OwnerName` does not have a Group `GroupName`.  Skipping.')
 
 
 @patch('tagtrain.data.by_owner.add_user_to_group')
@@ -32,7 +32,7 @@ def test_existing_member(find_group, add_user_to_group):
 
     find_group.assert_called_once_with('OwnerName', 'GroupName')
     add_user_to_group.assert_called_once_with('OwnerName', 'GroupName', 'AuthorName')
-    reply.append.assert_called_once_with("You are already a Member of `OwnerName`'s Group `GroupName`, skipping.")
+    reply.append.assert_called_once_with("You are already a Member of `OwnerName`'s Group `GroupName`.  Skipping.")
 
 
 @patch('tagtrain.data.by_owner.add_user_to_group')

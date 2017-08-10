@@ -18,11 +18,11 @@ class Remove(TagTrainResponse):
             group = data.by_owner.remove_user_from_group(owner_name, group_name, member_name)
 
         except data.Group.DoesNotExist:
-            reply.append(f'Group `{group_name}` does not exist, skipping.')
+            reply.append(f'Group `{group_name}` does not exist.  Skipping.')
             return
 
         except data.Member.DoesNotExist:
-            reply.append(f'`{member_name}` is not a Member of Group `{group_name}`, skipping.')
+            reply.append(f'`{member_name}` is not a Member of Group `{group_name}`.  Skipping.')
             return
 
         tmp = f'`{member_name}` removed from Group `{group.name}`, '

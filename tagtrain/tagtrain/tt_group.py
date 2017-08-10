@@ -22,7 +22,7 @@ class Group(TagTrainResponse):
             group = data.by_owner.find_group(owner_name, group_name)
 
         except data.Group.DoesNotExist:
-            reply.append(f'Group `{group_name}` does not exist, skipping.')
+            reply.append(f'Group `{group_name}` does not exist.  Skipping.')
             return
 
         sorted_members = sorted(group.members, key=lambda x: x.reddit_name.lower())

@@ -14,7 +14,7 @@ def test_unknown_group(rename_group):
     Rename(app).run(reply, message, match)
 
     rename_group.assert_called_once_with('AuthorName', 'GroupName', 'NewName')
-    reply.append.assert_called_once_with('Group `GroupName` does not exist, skipping.')
+    reply.append.assert_called_once_with('Group `GroupName` does not exist.  Skipping.')
 
 
 

@@ -21,11 +21,11 @@ class AddMe(TagTrainResponse):
             group, created = data.by_owner.add_user_to_group(owner_name, group_name, member_name)
 
         except data.Group.DoesNotExist:
-            reply.append(f'User `{owner_name}` does not have a Group `{group_name}`, skipping.')
+            reply.append(f'User `{owner_name}` does not have a Group `{group_name}`.  Skipping.')
             return
 
         if not created:
-            reply.append(f"You are already a Member of `{owner_name}`'s Group `{group_name}`, skipping.")
+            reply.append(f"You are already a Member of `{owner_name}`'s Group `{group_name}`.  Skipping.")
             return
 
         reply.append(f"You were added to `{owner_name}`'s Group `{group_name}`, {group.member_count} total Members.")

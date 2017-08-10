@@ -14,7 +14,7 @@ def test_unknown_group(remove_user_from_group):
     Remove(app).run(reply, message, match)
 
     remove_user_from_group.assert_called_once_with('AuthorName', 'GroupName', 'MemberName')
-    reply.append.assert_called_once_with('Group `GroupName` does not exist, skipping.')
+    reply.append.assert_called_once_with('Group `GroupName` does not exist.  Skipping.')
 
 
 @patch('tagtrain.data.by_owner.remove_user_from_group')
@@ -26,7 +26,7 @@ def test_unknown_member(remove_user_from_group):
     Remove(app).run(reply, message, match)
 
     remove_user_from_group.assert_called_once_with('AuthorName', 'GroupName', 'MemberName')
-    reply.append.assert_called_once_with('`MemberName` is not a Member of Group `GroupName`, skipping.')
+    reply.append.assert_called_once_with('`MemberName` is not a Member of Group `GroupName`.  Skipping.')
 
 @patch('tagtrain.data.by_owner.remove_user_from_group')
 def test_good(remove_user_from_group):
