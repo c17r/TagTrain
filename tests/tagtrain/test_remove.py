@@ -49,4 +49,4 @@ def test_good_no_members(remove_user_from_group):
     Remove(app).run(reply, message, match)
 
     remove_user_from_group.assert_called_once_with('AuthorName', 'GroupName', 'MemberName')
-    reply.append.assert_called_once_with('`MemberName` removed from Group `GroupName`, Group has no Members left so it was removed.')
+    reply.append.assert_called_once_with('`MemberName` removed from Group `GroupName`, 0 total Members.')

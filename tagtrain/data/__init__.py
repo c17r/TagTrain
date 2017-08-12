@@ -45,6 +45,7 @@ class Member(BaseModel):
     group = peewee.ForeignKeyField(Group, related_name='members', index=True)
     reddit_name = peewee.CharField(max_length=30)
     added = peewee.DateTimeField(default=_now)
+    perma_proof = peewee.CharField(max_length=512, null=True)
 
 
 from . import by_owner  # noqa: F401, E402

@@ -3,6 +3,11 @@ from . import TagTrainResponse, C_MEMBER, C_GROUP
 
 
 class Add(TagTrainResponse):
+    """
+    2017-08-11: disabled to prevent even a modicum of a chance that someone could report the bot as "spamming" since
+        that's already happened once and got out of the ban by the skin of my teeth.  People will now be forced to
+        add themselves to any list.
+    """
     CMD_REGEX = f'add {C_MEMBER} to {C_GROUP}'
     HELP_TEXT = "`u/{botname} add <user> to <group-name>` - Adds specified reddit user to the specified Group."
     TYPE = TagTrainResponse.TYPE_COMMENTORMESSAGE

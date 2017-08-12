@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 from . import fake
 
-from tagtrain.tagtrain.tt_add import Add
+from tagtrain.tagtrain.disabled_add import Add
 
 
 @patch('tagtrain.data.by_owner.add_user_to_group')

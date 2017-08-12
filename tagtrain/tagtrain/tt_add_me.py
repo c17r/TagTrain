@@ -12,6 +12,7 @@ class AddMe(TagTrainResponse):
         member_name = message.author.name
         owner_name = match.group('owner')
         group_name = match.group('group')
+        permalink = message.permalink()
 
         try:
             # we first try to find it so it will throw an exception if it doesn't exist.  We don't want
@@ -22,7 +23,7 @@ class AddMe(TagTrainResponse):
                 reply.append(f'Group `{group_name}` is locked.  Only `{owner_name}` can add you.  Skipping.')
                 return
 
-            group, created = data.by_owner.add_user_to_group(owner_name, group_name, member_name)
+            group, created = data.by_member.add_user_to_group(owner_name, group_name, member_name, permalink)
 
         except data.Group.DoesNotExist:
             reply.append(f'User `{owner_name}` does not have a Group `{group_name}`.  Skipping.')

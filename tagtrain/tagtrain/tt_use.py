@@ -20,6 +20,10 @@ class Use(TagTrainResponse):
             reply.append(f'Group `{group_name}` does not exist.  Skipping.')
             return
 
+        if group.member_count == 0:
+            reply.append(f'Group `{group_name}` has no Members.  Skipping.')
+            return
+
         reply.append(f'Using Group `{group.name}` to notify {group.member_count} Members.')
         for groupings in grouper(group.members.iterator(), MEMBER_LIMIT):
             tmp = ', '.join([f'u/{member.reddit_name}' for member in groupings if member])

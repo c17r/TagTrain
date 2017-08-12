@@ -18,6 +18,20 @@ def test_unknown_group(find_group):
 
 
 @patch('tagtrain.data.by_owner.find_group')
+def test_zero_members(find_group):
+    group = fake.create_group(name='GroupName', reddit_name='OwnerName', member_count=0)
+    group.members.iterator.return_value = []
+    find_group.return_value = group
+
+    app, reply, message, match = fake.create_all()
+
+    Use(app).run(reply, message, match)
+
+    find_group.assert_called_once_with('AuthorName', 'GroupName')
+    reply.append.assert_called_once_with('Group `GroupName` has no Members.  Skipping.')
+
+
+@patch('tagtrain.data.by_owner.find_group')
 def test_good(find_group):
     group = fake.create_group(name='GroupName', reddit_name='OwnerName', member_count=4)
     group.members.iterator.return_value = iter([
@@ -27,7 +41,6 @@ def test_good(find_group):
         MagicMock(reddit_name='User4'),
     ])
     find_group.return_value = group
-
 
     app, reply, message, match = fake.create_all()
 

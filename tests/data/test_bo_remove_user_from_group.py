@@ -56,5 +56,6 @@ def test_good_empty(database):
     assert group.member_count == 0
     assert len(list(group.members)) == 0
 
-    with pytest.raises(data.Group.DoesNotExist):
-        group = data.by_owner.find_group(db.OWNER_NAME, db.GROUP_NAME)
+    group = data.by_owner.find_group(db.OWNER_NAME, db.GROUP_NAME)
+    assert group.member_count == 0
+    assert len(list(group.members)) == 0

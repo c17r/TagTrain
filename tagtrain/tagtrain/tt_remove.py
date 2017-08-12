@@ -25,9 +25,4 @@ class Remove(TagTrainResponse):
             reply.append(f'`{member_name}` is not a Member of Group `{group_name}`.  Skipping.')
             return
 
-        tmp = f'`{member_name}` removed from Group `{group.name}`, '
-        if group.member_count > 0:
-            tmp += f'{group.member_count} total Members.'
-        else:
-            tmp += f'Group has no Members left so it was removed.'
-        reply.append(tmp)
+        reply.append(f'`{member_name}` removed from Group `{group.name}`, {group.member_count} total Members.')

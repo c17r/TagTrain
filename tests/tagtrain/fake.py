@@ -14,6 +14,7 @@ def create_message(name='AuthorName'):
     author = MagicMock()
     author.configure_mock(name=name)
     message.author = author
+    message.permalink = MagicMock(return_value='PermaLink')
     return message
 
 
