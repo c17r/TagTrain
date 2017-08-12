@@ -23,6 +23,10 @@ def init(db_path):
     database.create_tables([Group, Member], safe=True)
 
 
+class DataException(Exception):
+    pass
+
+
 class BaseModel(peewee.Model):
     class Meta:
         database = database

@@ -46,7 +46,7 @@ def rename_group(owner_name, group_name, new_name):
     _update_member_count(group)
 
 
-class InvalidRequest(Exception):
+class InvalidRequest(DataException):
     pass
 
 
