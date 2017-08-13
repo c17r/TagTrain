@@ -3,11 +3,10 @@ init:
 	pip install -U pip-tools
 	pip-sync requirements/dev.txt
 
-dev-reqs:
-	pip-compile --output-file requirements/dev.txt requirements/prod.in requirements/dev.in
-
 reqs:
-	pip-compile --output-file requirements/prod.txt requirements/prod.in
+	pip-compile -U -o requirements/prod.txt requirements/prod.in
+	pip-compile -U -o requirements/dev.txt requirements/prod.in requirements/dev.in
+	pip-sync requirements/dev.txt
 
 test: clean flake
 	pytest -v
