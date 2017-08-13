@@ -14,6 +14,6 @@ def test_unknown_owner(database):
 def test_good(database):
     groups = list(data.by_owner.find_groups(db.OWNER_NAME))
 
-    assert len(groups) == 1
+    assert len(groups) == 3
     assert groups[0].name == db.GROUP_NAME
     assert groups[0].reddit_name == db.OWNER_NAME

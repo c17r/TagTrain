@@ -46,6 +46,12 @@ def create_group(**kwargs):
     return group
 
 
+def create_blacklist(**kwargs):
+    blacklist = MagicMock()
+    blacklist.configure_mock(**kwargs)
+    return blacklist
+
+
 def create_all():
     app = create_app()
     reply = create_reply()

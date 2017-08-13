@@ -20,7 +20,7 @@ def init(db_path):
     if not database.is_closed():
         database.close()
     database.init(db_path)
-    database.create_tables([Group, Member], safe=True)
+    database.create_tables([Group, Member, Blacklist], safe=True)
 
 
 class DataException(Exception):
@@ -50,6 +50,14 @@ class Member(BaseModel):
     reddit_name = peewee.CharField(max_length=30)
     added = peewee.DateTimeField(default=_now)
     perma_proof = peewee.CharField(max_length=512, null=True)
+
+
+class Blacklist(BaseModel):
+    owner_reddit_name = peewee.CharField(max_length=255)
+    blocked_reddit_name = peewee.CharField(max_length=255)
+    group = peewee.ForeignKeyField(Group, related_name='+', null=True)
+    added = peewee.DateTimeField(default=_now)
+    perma_proof = peewee.CharField(max_length=512)
 
 
 from . import by_owner  # noqa: F401, E402

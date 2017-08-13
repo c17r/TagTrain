@@ -1,5 +1,5 @@
-from . import Group, Member, _update_member_count
-from tagtrain.data.by_owner import find_group
+from . import DataException, Group, Member, _update_member_count
+from tagtrain.data import by_owner
 
 
 def remove_from_all_groups(reddit_name):
@@ -25,8 +25,17 @@ def find_groups(reddit_name):
             .iterator())
 
 
+class Blacklisted(DataException):
+    pass
+
+
 def add_user_to_group(owner_name, group_name, reddit_name, permalink):
-    group = find_group(owner_name, group_name)
+    group = by_owner.find_group(owner_name, group_name)
+
+    bls = by_owner.find_blacklists(owner_name, reddit_name)
+    for b in bls:
+        if b.group is None or b.group == group:
+            raise Blacklisted()
 
     member, created = Member.get_or_create(
         group=group,

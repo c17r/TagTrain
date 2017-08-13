@@ -66,3 +66,19 @@ def test_good(find_group, add_user_to_group):
     find_group.assert_called_once_with('OwnerName', 'GroupName')
     add_user_to_group.assert_called_once_with('OwnerName', 'GroupName', 'AuthorName', 'PermaLink')
     reply.append.assert_called_once_with("You were added to `OwnerName`'s Group `GroupName`, 1 total Members.")
+
+
+@patch('tagtrain.data.by_member.add_user_to_group')
+@patch('tagtrain.data.by_owner.find_group')
+def test_blacklisted(find_group, add_user_to_group):
+    group = fake.create_group(name='GroupName', member_count=1, locked=None)
+    find_group.return_value = group
+    add_user_to_group.side_effect = data.by_member.Blacklisted()
+
+    app, reply, message, match = fake.create_all()
+
+    AddMe(app).run(reply, message, match)
+
+    find_group.assert_called_once_with('OwnerName', 'GroupName')
+    add_user_to_group.assert_called_once_with('OwnerName', 'GroupName', 'AuthorName', 'PermaLink')
+    reply.append.assert_called_once_with("You are Blacklisted from adding yourself to Group `GroupName`.  Skipping.")

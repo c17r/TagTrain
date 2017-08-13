@@ -29,6 +29,10 @@ class AddMe(TagTrainResponse):
             reply.append(f'User `{owner_name}` does not have a Group `{group_name}`.  Skipping.')
             return
 
+        except data.by_member.Blacklisted:
+            reply.append(f'You are Blacklisted from adding yourself to Group `{group_name}`.  Skipping.')
+            return
+
         if not created:
             reply.append(f"You are already a Member of `{owner_name}`'s Group `{group_name}`.  Skipping.")
             return

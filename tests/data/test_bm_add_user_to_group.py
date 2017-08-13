@@ -47,3 +47,14 @@ def test_existing_member(database):
 
     assert len(members) == 4
 
+
+def test_group_blacklist(database):
+
+    with pytest.raises(data.by_member.Blacklisted):
+        group, created = data.by_member.add_user_to_group(db.OWNER_NAME, 'group2', 'blockee', 'permalink')
+
+
+def test_blanket_blacklist(database):
+
+    with pytest.raises(data.by_member.Blacklisted):
+        group, created = data.by_member.add_user_to_group('user2', 'group2', 'blockee', 'permalink')
