@@ -10,6 +10,7 @@ GROUP_NAME = 'group1'
 @pytest.fixture()
 def database():
     data.init(':memory:')
+    data.database.create_tables([data.Group, data.Member, data.Blacklist])
 
     group = data.Group.create(name=GROUP_NAME, reddit_name=OWNER_NAME, member_count=4, locked=None)
     data.Member.create(group=group, reddit_name='one')

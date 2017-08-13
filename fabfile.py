@@ -20,6 +20,7 @@ def deploy():
     local('make clean')
 
     local('tar cf %(stamptar)s requirements/' % env)
+    local('tar rf %(stamptar)s migrations/' % env)
     local('tar rf %(stamptar)s tagtrain/' % env)
     local('tar rf %(stamptar)s run.py' % env)
     local('tar rf %(stamptar)s run.sh' % env)
@@ -48,6 +49,9 @@ def deploy():
 
             with path('./venv/bin', behavior='prepend'):
                 sudo('pip install --quiet --no-cache-dir -r ./src/requirements/prod.txt' % env)
+
+            with path('./venv/bin', behavior='prepend'):
+                sudo('python -m peewee_migrate migrate --database=sqlite:///../tagtrain.db --directory=src/migrations')
 
         with cd('/home/reddit_tagtrain'):
             sudo('run/current/src/run.sh stop')

@@ -20,7 +20,6 @@ def init(db_path):
     if not database.is_closed():
         database.close()
     database.init(db_path)
-    database.create_tables([Group, Member, Blacklist], safe=True)
 
 
 class DataException(Exception):

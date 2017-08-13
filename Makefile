@@ -20,3 +20,6 @@ flake:
 clean:
 	find . -regex '*.py(c|o)' -delete
 	find . -name '__pycache__' -type d -delete
+
+migrate-local:
+	peewee_migrate migrate --database=sqlite:///local/tagtrain.db
