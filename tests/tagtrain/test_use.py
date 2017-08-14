@@ -49,6 +49,6 @@ def test_good(find_group):
     find_group.assert_called_once_with('AuthorName', 'GroupName')
     reply.append.assert_called_once_with('Using Group `GroupName` to notify 4 Members.')
     reply.new_child.assert_has_calls([
-        call('`OwnerName` used `TagTrain` Bot to mention you: u/User1, u/User2, u/User3'),
-        call('`OwnerName` used `TagTrain` Bot to mention you: u/User4'),
+        call('`OwnerName` used Group `GroupName` to mention you: u/User1, u/User2, u/User3\n\n---\nIf you no longer want to receive messages from this Group, reply to this comment with (no quotes): `removeme from OwnerName GroupName`'),
+        call('`OwnerName` used Group `GroupName` to mention you: u/User4\n\n---\nIf you no longer want to receive messages from this Group, reply to this comment with (no quotes): `removeme from OwnerName GroupName`'),
     ])

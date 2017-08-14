@@ -1,5 +1,5 @@
 from .. import data
-from . import TagTrainResponse, C_GROUP, grouper, MEMBER_LIMIT
+from . import TagTrainResponse, grouper, C_GROUP, MEMBER_LIMIT
 
 
 class Use(TagTrainResponse):
@@ -27,4 +27,13 @@ class Use(TagTrainResponse):
         reply.append(f'Using Group `{group.name}` to notify {group.member_count} Members.')
         for groupings in grouper(group.members.iterator(), MEMBER_LIMIT):
             tmp = ', '.join([f'u/{member.reddit_name}' for member in groupings if member])
-            reply.new_child(f'`{group.reddit_name}` used `TagTrain` Bot to mention you: {tmp}')
+
+            msg = (
+                f"`{group.reddit_name}` used Group `{group.name}` to mention you: {tmp}\n"
+                f"\n"
+                f"---\n"
+                f"If you no longer want to receive messages from this Group, "
+                f"reply to this comment with (no quotes): "
+                f"`removeme from {group.reddit_name} {group.name}`"
+            )
+            reply.new_child(msg)
