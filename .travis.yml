@@ -1,0 +1,9 @@
+language: python
+python:
+  - "3.6"
+  - "3.6-dev"
+  - "nightly"
+install:
+  - pip install pip-tools
+  - pip-sync requirements/dev.txt
+script: make test
