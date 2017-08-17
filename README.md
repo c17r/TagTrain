@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/c17r/TagTrain.svg?branch=master)](https://travis-ci.org/c17r/TagTrain)
 
+[![Coverage Status](https://coveralls.io/repos/github/c17r/TagTrain/badge.svg?branch=master)](https://coveralls.io/github/c17r/TagTrain?branch=master)
+
 # TagTrain Bot
 
 A reddit bot for dealing with the fact that reddit only allows you to mention 3 users per post.  Any more than that

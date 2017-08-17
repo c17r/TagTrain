@@ -6,4 +6,6 @@ python:
 install:
   - pip install pip-tools
   - pip-sync requirements/dev.txt
-script: make test
+  - pip install coveralls
+script: make coverage
+after_success: coveralls
