@@ -1,11 +1,18 @@
+dist: xenial
 language: python
+
 python:
+  - "3.5"
   - "3.6"
-  - "3.6-dev"
+  - "3.7"
   - "nightly"
+
 install:
-  - pip install pip-tools
-  - pip-sync requirements/dev.txt
+  - make
   - pip install coveralls
-script: make coverage
-after_success: coveralls
+
+script:
+  - make coverage
+
+after_success:
+  - coveralls

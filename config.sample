@@ -6,6 +6,7 @@
     "password": "<reddit-password>",
     "user_agent": "python:com.c17r.tagtrain: dev (by /u/c17r)"
   },
-  "validate_username": true
+  "validate_username": true,
+  "sentry_dsn": "<optional-sentry-dsn-url>"
 }
 

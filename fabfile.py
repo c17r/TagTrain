@@ -18,12 +18,10 @@ def live():
 @task
 def deploy():
     local('make clean')
+    local('pipenv run python setup.py sdist bdist_wheel --universal')
 
-    local('tar cf %(stamptar)s requirements/' % env)
-    local('tar rf %(stamptar)s migrations/' % env)
-    local('tar rf %(stamptar)s tagtrain/' % env)
-    local('tar rf %(stamptar)s run.py' % env)
-    local('tar rf %(stamptar)s run.sh' % env)
+    local('tar cf %(stamptar)s run.sh' % env)
+    local('(cd dist && tar rf ../%(stamptar)s *.tar.gz)' % env)
     local('gzip %(stamptar)s' % env)
 
     put(stampzip, '/tmp/%(stampzip)s' % env)

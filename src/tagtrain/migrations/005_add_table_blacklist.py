@@ -1,4 +1,4 @@
-"""Peewee migrations -- 002_add_table_member.py.
+"""Peewee migrations -- 005_add_table_blacklist.py.py.
 
 Some examples (model - class or model name)::
 
@@ -27,18 +27,20 @@ import peewee
 
 def migrate(migrator, database, fake=False, **kwargs):
     """Write your migrations here."""
-
     Group = migrator.orm['group']
 
     def _now():
         pass
 
-    @migrator.create_table
-    class Member(peewee.Model):
-        group = peewee.ForeignKeyField(Group, related_name='members', index=True)
-        reddit_name = peewee.CharField(max_length=30)
+    @migrator.create_model
+    class Blacklist(peewee.Model):
+        owner_reddit_name = peewee.CharField(max_length=255)
+        blocked_reddit_name = peewee.CharField(max_length=255)
+        group = peewee.ForeignKeyField(Group, backref='+', null=True)
         added = peewee.DateTimeField(default=_now)
+        perma_proof = peewee.CharField(max_length=512)
 
 
 def rollback(migrator, database, fake=False, **kwargs):
     """Write your rollback migrations here."""
+

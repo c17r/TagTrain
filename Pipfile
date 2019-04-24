@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+
+daemonocle = "*"
+logbook = "*"
+peewee = "*"
+praw = "*"
+"peewee-migrate" = "*"
+raven = "*"
+
+
+[dev-packages]
+
+"flake8" = "*"
+pytest = "*"
+"pytest-cov" = "*"
+"fabric3" = "*"
+"pytest-pythonpath" = "*"
+"tox-pyenv" = "*"
+twine = "*"

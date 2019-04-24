@@ -45,7 +45,7 @@ class Group(BaseModel):
 
 
 class Member(BaseModel):
-    group = peewee.ForeignKeyField(Group, related_name='members', index=True)
+    group = peewee.ForeignKeyField(Group, backref='members', index=True)
     reddit_name = peewee.CharField(max_length=30)
     added = peewee.DateTimeField(default=_now)
     perma_proof = peewee.CharField(max_length=512, null=True)
@@ -54,7 +54,7 @@ class Member(BaseModel):
 class Blacklist(BaseModel):
     owner_reddit_name = peewee.CharField(max_length=255)
     blocked_reddit_name = peewee.CharField(max_length=255)
-    group = peewee.ForeignKeyField(Group, related_name='+', null=True)
+    group = peewee.ForeignKeyField(Group, backref='+', null=True)
     added = peewee.DateTimeField(default=_now)
     perma_proof = peewee.CharField(max_length=512)
 

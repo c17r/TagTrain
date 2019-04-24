@@ -4,10 +4,11 @@ import logging
 import argparse
 import daemonocle
 import logbook
+from raven.handlers.logbook import SentryHandler
 
-from tagtrain import data
-from tagtrain.reddit import RedditStreamingEvents
-from tagtrain.tagtrain import TagTrain
+from . import data
+from .reddit import RedditStreamingEvents
+from .tagtrain import TagTrain
 
 _logger = logging.getLogger(__name__)
 
@@ -35,8 +36,23 @@ def config_logging(args):
             format_string=('{record.time:%Y-%m-%d %H:%M:%S.%f}'
                            ' : {record.level_name}'
                            ' : {record.channel}'
-                           ' : {record.message}')
+                           ' : {record.message}'),
+            bubble=True
         ).push_application()
+        config_sentry(args)
+
+
+def config_sentry(args):
+    # Configure the default client
+    config = get_config(args.config_file)
+    if 'sentry_dsn' not in config or not config['sentry_dsn']:
+        return
+
+    handler = SentryHandler(
+        config['sentry_dsn'],
+        level='INFO',
+        bubble=True
+    ).push_application()
 
 
 def cb_shutdown(message, code):
@@ -55,7 +71,7 @@ def create_args():
     return parser.parse_args()
 
 
-def main():
+def bootstrap():
     args = create_args()
     config = get_config(args.config_file)
 
@@ -74,17 +90,21 @@ def main():
             _logger.exception(f'Exception: {e}')
 
 
-if __name__ == '__main__':
+def main():
     args = create_args()
     config_logging(args)
 
     if args.action != 'cli':
         daemon = daemonocle.Daemon(
-            worker=main,
+            worker=bootstrap,
             shutdown_callback=cb_shutdown,
             pidfile=args.pid_file,
             workdir='.'
         )
         daemon.do_action(args.action)
     else:
-        main()
+        bootstrap()
+
+
+if __name__ == '__main__':
+    sys.exit(main())

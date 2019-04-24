@@ -10,4 +10,4 @@ CONFILE=$RUN/config.json
 
 source "$CURRENT/venv/bin/activate"
 
-python $CURRENT/src/run.py $1 --pid-file "$PIDFILE" --log-file "$LOGFILE" --db-file "$DATFILE" --config-file "$CONFILE"
+tagtrain $1 --pid-file "$PIDFILE" --log-file "$LOGFILE" --db-file "$DATFILE" --config-file "$CONFILE"
